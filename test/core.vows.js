@@ -87,5 +87,20 @@ vows.describe( 'Cascade' ).addBatch({
                                                      test.increment(1),
                                                      cascade.collect
                                                    )
+    },
+
+    "Filter:" : {
+        "(not an array)" : test.context( 1, 1,
+                                         cascade.filter( function(){} )
+                                       ),
+        "(pass all)" : test.context( [1,2,3], [1,2,3],
+                                     cascade.filter( function(){ return true; } )
+                                   ),
+        "(pass none)": test.context( [1,2,3], [],
+                                     cascade.filter( function(){ return false; } )
+                                   ),
+        "(pass some)" : test.context( [1,2,3,4,5,6], [2,4,6],
+                                      cascade.filter( function(i){ return i % 2 === 0; } )
+                                    )
     }
 }).export(module);

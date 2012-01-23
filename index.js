@@ -13,14 +13,15 @@ requirejs.config({
 
 requirejs(
     ['cascade_core',
-     'cascade_fork', 'cascade_slice', 'cascade_queue', 'cascade_collect'],
+     'cascade_fork', 'cascade_slice', 'cascade_queue', 'cascade_collect', 'cascade_filter'],
     function( cascade,
-              fork, slice, queue, collect ){
+              fork, slice, queue, collect, filter ){
 
         cascade.fork = fork;
         cascade.slice = slice;
         cascade.queue = queue;
         cascade.collect = collect;
+        cascade.filter = filter;
 
         module.exports = cascade;
     }
