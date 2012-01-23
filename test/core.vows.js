@@ -102,5 +102,14 @@ vows.describe( 'Cascade' ).addBatch({
         "(pass some)" : test.context( [1,2,3,4,5,6], [2,4,6],
                                       cascade.filter( function(i){ return i % 2 === 0; } )
                                     )
+    },
+
+    "Map:" : {
+        "(not an array)" : test.context( 1, true,
+                                         cascade.map( function(i){ return !!i; } )
+                                       ),
+        "(array)" : test.context( [1,2,3,4,5,6], ['odd', 'even', 'odd', 'even', 'odd', 'even'],
+                                  cascade.map( function(i){ return (i%2===0?'even':'odd'); } )
+                                )
     }
 }).export(module);
