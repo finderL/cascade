@@ -44,6 +44,14 @@ var test = module.exports = {
         }
     },
 
+    "randomDelay" : function( min, max ){
+        return function( item, callback ){
+            setTimeout( function(){
+                callback( item );
+            }, Math.floor( Math.random() * (max - min) + min ) );
+        };
+    },
+
     "log" : function( item, callback ){
         console.log( "Arguments:", item );
 

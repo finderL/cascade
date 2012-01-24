@@ -70,13 +70,22 @@ vows.describe( 'Cascade' ).addBatch({
         "(many items)" : test.context( [1, 2], [1, 2],
                                        cascade.fork,
                                        cascade.join
-                                     )
+                                     ),
+        "(many items, post-aggregate processing)" : test.context( [1,2,3], [2,3,4],
+                                                                  cascade.fork,
+                                                                  cascade.join,
+                                                                  function( arr, cb ){
+                                                                      for( var i in arr ){
+                                                                          arr[i]++;
+                                                                      }
+                                                                      cb(arr);
+                                                                  }
+                                                                )
     },
 
     "Fork:" : {
         "(single item)" : test.context( [ 1 ], 1,
-                                        cascade.fork,
-                                        test.log
+                                        cascade.fork
                                       ),
         "(many items, no post-process)" : test.context( [1, 2], [1, 2],
                                                         cascade.fork,
@@ -87,6 +96,88 @@ vows.describe( 'Cascade' ).addBatch({
                                                      test.increment(1),
                                                      cascade.join
                                                    )
+    },
+
+    "Queue:" : {
+        "(not an array)" : test.context( 1, 1,
+                                         cascade.queue
+                                       ),
+        "(array, length 1)" : test.context( [1], 1,
+                                            cascade.queue
+                                          ),
+        "(array, runs all)" : {
+            topic : function(){
+                var ok = [],
+                    calls = 4,
+                    done = this.callback,
+                    log = function( item, call ){
+                        ok[item] = true;
+                        call( item );
+                    },
+                    multicall = function( item, call ){
+                        if( --calls === 0 ){
+                            done( null, ok );
+                        } else {
+                            call( item );
+                        }
+                    };
+
+                cascade(
+                    [0,1,2,3],
+                    cascade.queue,
+                    log,
+                    multicall );
+            },
+            "ok" : function( topic ){
+                assert.deepEqual( topic, [true, true, true, true] );
+            }
+        },
+        "(array, length 5, join, ensure order)" : {
+            topic : function(){
+                var order = [],
+                    log = function(i,c){
+                        order.push( i );
+                        c(i);
+                    };
+
+                cascade(
+                    [1,2,3,4,5],
+                    cascade.queue,
+                    //test.randomDelay( 10, 30 ),
+                    log,
+                    cascade.join,
+                    test.addData( {order : order} ),
+                    test.returnData,
+                    test.done( this.callback )
+                );
+            },
+            "ok" : function(topic){
+                assert.deepEqual( topic, {order : [1,2,3,4,5]} );
+            }
+        },
+        "(array, length 5, join, ensure order, random async delay)" : {
+            topic : function(){
+                var order = [],
+                    log = function(i,c){
+                        order.push( i );
+                        c(i);
+                    };
+
+                cascade(
+                    [3,2,1,4,5],
+                    cascade.queue,
+                    test.randomDelay( 1, 100 ),
+                    log,
+                    cascade.join,
+                    test.addData( {order : order} ),
+                    test.returnData,
+                    test.done( this.callback )
+                );
+            },
+            "ok" : function( topic ){
+                assert.deepEqual( topic, { order : [3,2,1,4,5] } );
+            }
+        }
     },
 
     "Filter:" : {
