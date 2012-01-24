@@ -23,6 +23,13 @@ var test = module.exports = {
         };
     },
 
+    "passthrough" : function(){
+        arguments[ arguments.length - 1 ].apply(
+            this,
+            Array.prototype.slice.call( arguments, 0, arguments.length - 1 )
+        );
+    },
+
     "increment" : function( by ){
         return function( item, callback ){
             callback( item + by );
@@ -60,9 +67,10 @@ var test = module.exports = {
     },
 
     "log" : function( item, callback ){
-        console.log( "Arguments:", item );
+        var args = Array.prototype.slice.call( arguments, 0, arguments.length - 1 );
+        console.log( "Arguments:", args );
 
-        callback( item );
+        arguments[ arguments.length - 1 ].apply( this, args );
     },
 
     "done" : function( cb ){

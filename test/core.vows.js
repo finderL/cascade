@@ -42,6 +42,22 @@ vows.describe( 'Cascade' ).addBatch({
             "ok" : function( topic ){
                 assert.deepEqual( topic, { args : [3, 5] } );
             }
+        },
+        "(initialized with multiple arguments)" : {
+            topic : function(){
+                var done = this.callback;
+
+                cascade(
+                    1, 2, 3,
+                    test.passthrough,
+                    function(){
+                        done( null, { args : Array.prototype.slice.call( arguments, 0, 3 ) } );
+                    }
+                );
+            },
+            "ok" : function( topic ){
+                assert.deepEqual( topic, { args : [1,2,3] } );
+            }
         }
     },
 
@@ -267,6 +283,32 @@ vows.describe( 'Cascade' ).addBatch({
             "ok" : function( topic ){
                 assert.deepEqual( topic, { ok : [true, true, true] });
             }
+        }
+    },
+
+    "General" : {
+        "Node.js filesystem rename/stat sample" : function(){
+            var fs = require('fs'),
+                oldFilename = './__TESTFILE',
+                newFilename = './__NEW_TESTFILE',
+                testFn = function(){
+                    cascade( oldFilename, newFilename,
+                             cascade.chain( fs.rename ),
+                             cascade.raise,
+                             cascade.argument(2),
+                             fs.stat,
+                             cascade.raise,
+                             function( noerr, stats ){
+                                 assert.isObject( stats );
+
+                                 fs.unlink( newFilename );
+                             }
+                           );
+                };
+
+            // create the file
+            fs.writeFileSync( oldFilename, 'test' );
+            assert.doesNotThrow( testFn );
         }
     }
 
