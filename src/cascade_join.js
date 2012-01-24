@@ -37,7 +37,7 @@ define( ['cascade_core', 'cascade_context'], function( cascade, createContext ){
 
         // the item has reached the end of it's callback stack; call the callback once more
         // in case there is any cleanup in the callback for stack-completion
-        next.call( this, item );
+        next( item );
 
         // now have a collection that this item belongs to
         collection.items[ this.data.list_index ] = item;

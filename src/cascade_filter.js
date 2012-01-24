@@ -2,6 +2,10 @@ define( ['util_is'], function( is ){
 
     /**
      * Filters an incoming list based on the supplied function
+     *
+     * Callback function conforms to ECMA-262 15.4.4.20
+     *  -- function( itemValue, arrayIndex, originalArray )
+     * Note: No value for `thisArg` can be defined
      */
     return function( fn ){
 
@@ -12,7 +16,7 @@ define( ['util_is'], function( is ){
             // filter the incoming array
             var filtered = [];
             for( var i = 0 ; i < item.length ; i++ ){
-                if( fn( item[ i ], i, item ) === true ){
+                if( !! fn( item[ i ], i, item ) === true ){
                     filtered.push( item[ i ] );
                 }
             }

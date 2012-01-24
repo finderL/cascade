@@ -7,7 +7,7 @@ define( ['util_extend', 'cascade_context'], function( extend, createContext ){
         // if a value of "this" is provided, use it
         var context = ( this !== NO_CONTEXT ? this :
                         createContext( Array.prototype.slice.call( arguments, 1 ) ) ),
-            callback = function( async_item, extraData ){
+            next = function(){
 
                 // default to this context if no context is provided
                 var ctx = ( this === NO_CONTEXT ? context : this ),
@@ -18,13 +18,13 @@ define( ['util_extend', 'cascade_context'], function( extend, createContext ){
                 if( ctx.stackPosition < ctx.stack.length ){
                     ctx.stack[ ctx.stackPosition++ ].apply(
                         ctx,
-                        Array.prototype.concat.call( args, callback )
+                        args.concat( next )
                     );
                 }
             };
 
         // start the callback chain
-        callback.call( context, item );
+        next.call( context, item );
 
     };
 
