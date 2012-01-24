@@ -10,13 +10,12 @@ define( ['util_extend', 'util_is', 'cascade_context'], function( extend, is, cre
 
         // define the callback context and function
         // if a value of "this" is provided, use it
-        var context = ( this !== NO_CONTEXT ? this :
+        var context = ( is.validContext( this ) && this !== NO_CONTEXT ? this :
                         createContext( Array.prototype.slice.call( arguments, i ) ) ),
             next = function(){
 
                 // default to this context if no context is provided
-                //var ctx = ( this === NO_CONTEXT ? context : this ),
-                var ctx = ( is.validContext( this ) ? this : context ),
+                var ctx = ( is.validContext( this ) && this !== NO_CONTEXT ? this : context ),
                 // transform arguments into a proper array
                     args = Array.prototype.slice.call( arguments );
 

@@ -19,7 +19,7 @@ define( ['util_extend', 'util_is', 'cascade_context'], function( extend, is, cre
         context.stackPosition = context.stack.length;
 
         var queueCallback = function(){
-            var ctx = ( this === NO_CONTEXT ? currentContext : this ),
+            var ctx = ( is.validContext( this ) && this !== NO_CONTEXT ? this : currentContext ),
             // arguments -> array
                 args = Array.prototype.slice.call( arguments );
 
