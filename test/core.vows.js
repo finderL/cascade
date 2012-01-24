@@ -202,5 +202,46 @@ vows.describe( 'Cascade' ).addBatch({
         "(array)" : test.context( [1,2,3,4,5,6], ['odd', 'even', 'odd', 'even', 'odd', 'even'],
                                   cascade.map( function(i){ return (i%2===0?'even':'odd'); } )
                                 )
+    },
+
+    "Each:" : {
+        "(not an array, still applies)" : {
+            topic : function(){
+                var ok = [];
+
+                cascade(
+                    1,
+                    cascade.each( function( item, index, list ){
+                        ok[ item ] = true;
+                    } ),
+                    test.addData( { ok : ok } ),
+                    test.returnData,
+                    test.done( this.callback )
+                );
+            },
+            "ok" : function( topic ){
+                assert.deepEqual( topic, { ok : [,true] });
+            }
+        },
+        "(applies to all elements)" : {
+            topic : function(){
+                var ok = [];
+
+                cascade(
+                    [1,2,3],
+                    cascade.each( function( item, index, list ){
+                        ok[ index ] = true;
+                    } ),
+                    test.addData( { ok : ok } ),
+                    test.returnData,
+                    test.done( this.callback )
+                );
+            },
+            "ok" : function( topic ){
+                assert.deepEqual( topic, { ok : [true, true, true] });
+            }
+        }
     }
+
+
 }).export(module);
