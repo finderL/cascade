@@ -18,8 +18,33 @@ vows.describe( 'Cascade' ).addBatch({
                                             test.increment(1),
                                             test.delay(100),
                                             test.increment(1),
-                                            test.increment(1) )
+                                            test.increment(1)
+                                          ),
+        "(with multiple arguments)" : {
+            topic : function(){
+
+                var fib = function( v1, v2, next ){
+                    next( v2, v1 + v2 );
+                };
+                var done = this.callback;
+
+                cascade(
+                    1,
+                    function(v, next){ next( v, v ) },
+                    fib,
+                    fib,
+                    fib,
+                    function(){
+                        done( null, { args : Array.prototype.slice.call( arguments, 0, 2 ) } );
+                    }
+                );
+            },
+            "ok" : function( topic ){
+                assert.deepEqual( topic, { args : [3, 5] } );
+            }
+        }
     },
+
     "Data:" : {
         "(one data, one callback)" : test.context( null, { data : true },
                                                    test.addData( { data : true } ),
@@ -97,6 +122,7 @@ vows.describe( 'Cascade' ).addBatch({
                                                      cascade.join
                                                    )
     },
+
 
     "Queue:" : {
         "(not an array)" : test.context( 1, 1,
@@ -179,6 +205,7 @@ vows.describe( 'Cascade' ).addBatch({
             }
         }
     },
+
 
     "Filter:" : {
         "(not an array)" : test.context( 1, 1,

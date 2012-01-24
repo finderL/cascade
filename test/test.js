@@ -8,11 +8,14 @@ var test = module.exports = {
         return {
             topic : function(){
 
-                cascade.apply( {},
-                               [initialVal]
-                                   .concat( funcs )
-                                   .concat( test.done( this.callback ) )
-                             );
+                cascade.call(
+                    {
+                        stack : funcs.concat( test.done( this.callback ) ),
+                        stackPosition : 0,
+                        data : {}
+                    },
+                    initialVal
+                );
             },
             "ok" : function( topic ){
                 assert.deepEqual( topic, result );
@@ -27,13 +30,17 @@ var test = module.exports = {
     },
 
     "addData" : function( data ){
-        return function( item, callback ){
-            callback( item, data );
+        return function( item, next ){
+            //callback( item, data );
+            for( var prop in data ){
+                this.data[prop] = data[prop];
+            }
+            next( item );
         }
     },
 
-    "returnData" : function( item, callback, data ){
-        callback( data );
+    "returnData" : function( item, next ){
+        next( this.data );
     },
 
     "delay" : function( ms ){

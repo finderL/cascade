@@ -1,36 +1,35 @@
-define( ['cascade_core'], function( cascade ){
+define( ['cascade_core', 'cascade_context'], function( cascade, createContext ){
     /**
      * Collects a destructured list back into an array when all asynchronous calls are done
      */
 
     var collections = [];
 
-    return function( item, callback, data, callbackPosition, callbackStack ){
-        // ensure this item came from a list
-        if( !data.hasOwnProperty('list_index') || !data.hasOwnProperty('list_length') ){
-            callback( item );
+    return function( item, next ){
+        // ensure this item came from a list; if not, just skip
+        if( ! this.data.hasOwnProperty('list_index') || ! this.data.hasOwnProperty('list_length') ){
+            return next( item );
         }
 
         // find the collection this item is associated with
         var collection;
-        for( var i = 0; i < collections.length ; i++ ){
-            if( collections[i].stack === callbackStack ){
-                collection = collections[ i ];
-                break;
+        for( var i = 0 ; i < collections.length ; i++ ){
+            if( collections[i].stack === this.stack ){
+                collection = collections[i];
             }
         }
 
-        // if this is the first item from the collection
+        // if no collection can be found, this item is the first; process appropriately
         if( !collection ){
             collection = {
-                // this is how the collection can be identified
-                stack : callbackStack
-                // instantiate a new sparsely-populated array for collecting items
-              , items : new Array( data.list_length )
-                // track how many more items will come in
-              , waiting_on : data.list_length
-                // the remaining stack to resume after all items are collected
-              , resumeStack : callbackStack.splice( callbackPosition, callbackStack.length - callbackPosition + 1 )
+                // identify the stack
+                stack : this.stack
+                // instantiate a sparsely-populated array for collecting items
+              , items : new Array( this.data.list_length )
+                // remaining items
+              , waiting_on : this.data.list_length
+                // the remaining stack to execute
+              , resumeStack : this.stack.splice( this.stackPosition, this.stack.length - this.stackPosition + 1 )
             };
 
             collections.push( collection );
@@ -38,10 +37,10 @@ define( ['cascade_core'], function( cascade ){
 
         // the item has reached the end of it's callback stack; call the callback once more
         // in case there is any cleanup in the callback for stack-completion
-        callback( item );
+        next.call( this, item );
 
         // now have a collection that this item belongs to
-        collection.items[ data.list_index ] = item;
+        collection.items[ this.data.list_index ] = item;
         collection.waiting_on--;
 
         // if we've collected all items, continue
@@ -55,7 +54,10 @@ define( ['cascade_core'], function( cascade ){
             }
 
             // start a new cascade
-            cascade.apply( {}, [ collection.items ].concat( collection.resumeStack ) );
+            cascade.call(
+                createContext( collection.resumeStack ),
+                collection.items
+            );
         }
     };
 });

@@ -1,53 +1,54 @@
-define( ['util_extend', 'util_is'], function( extend, is ){
+define( ['util_extend', 'util_is', 'cascade_context'], function( extend, is, createContext ){
 
     /**
      * Takes an array `item` and executes the remainder of the callback stack on each element
      * of the array before advancing to the next element in the array
      */
-    return function( item, callback, data, currentPosition, callbackStack ){
-        // if it's not an array, just pass it through
-        if( ! is.array( item ) ){ callback( item ); return; }
+    var NO_CONTEXT = this;
 
-        // current position in the array
-        var queuePosition = 0,
-        // current position in the callback stack
-            queueCallbackPosition = currentPosition,
-        // queue item specific data
-            queueData = extend( {},
-                                data,
-                                { list_index : queuePosition, list_length : item.length } ),
-        // the queue-specific callback function
-            queueCallback = function( nextItem, extraData ){
-                // typical callback execution
-                if( queueCallbackPosition < callbackStack.length ){
+    return function( item, next ){
+        if( ! is.array( item ) ){ return next( item ); }
 
-                    callbackStack[ queueCallbackPosition++ ]( nextItem,
-                                                              queueCallback,
-                                                              extend( queueData, extraData ),
-                                                              queueCallbackPosition,
-                                                              callbackStack );
-                    // when the end of the callback stack is reached
-                } else if ( queueCallbackPosition >= callbackStack.length ){
-                    // move forward in the array `item`
-                    queuePosition++;
-                    // if this position exists in the item
-                    if( queuePosition < item.length ){
-                        // reset the counters and restart callback on next element
-                        queueCallbackPosition = currentPosition;
-                        queueData = extend( {},
-                                            data,
-                                            {
-                                                list_index : queuePosition,
-                                                list_length : item.length
-                                            });
-                        queueCallback( item[ queuePosition ] );
-                    }
-                }
-            };
+        // need to replace the callback
+        var context = this,
+            currentContext = this,
+            queuePosition = -1,
+            originalStackPosition = context.stackPosition;
 
-        // start the queue
-        queueCallback( item[ queuePosition ], queueData );
+        // default to starting the queue
+        context.stackPosition = context.stack.length;
 
+        var queueCallback = function(){
+            var ctx = ( this === NO_CONTEXT ? currentContext : this ),
+            // arguments -> array
+                args = Array.prototype.slice.call( arguments );
+
+            // if at the end of the stack, reset the counter and move to the next item
+            if( ctx.stackPosition >= ctx.stack.length ){
+                // move forward in the queue
+                queuePosition++;
+                // if the queue is complete, just return
+                if( queuePosition >= item.length ){ return; }
+                // modify the context to prevent list_* overlapping
+                currentContext = ctx = createContext(
+                    context.stack,
+                    extend( {}, context.data, { list_index : queuePosition, list_length : item.length } ),
+                    originalStackPosition );
+
+                // set the arguments to the correct value
+                args = [ item[ queuePosition ] ];
+            }
+
+            if( ctx.stackPosition < ctx.stack.length ){
+                // still something left in the stack; run it
+                ctx.stack[ ctx.stackPosition++ ].apply(
+                    ctx,
+                    args.concat( queueCallback )
+                );
+            }
+        };
+
+        return queueCallback( item[ queuePosition ] );
     };
 
 });
