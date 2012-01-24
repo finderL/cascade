@@ -1,16 +1,22 @@
-define( ['util_extend', 'cascade_context'], function( extend, createContext ){
+define( ['util_extend', 'util_is', 'cascade_context'], function( extend, is, createContext ){
 
     var NO_CONTEXT = this;
 
     function cascade( item ){
+        // find where the default arguments end and the stack begins
+        for( var i = 1 ; i < arguments.length ; i++ ){
+            if( is.func( arguments[i] ) ) { break; }
+        }
+
         // define the callback context and function
         // if a value of "this" is provided, use it
         var context = ( this !== NO_CONTEXT ? this :
-                        createContext( Array.prototype.slice.call( arguments, 1 ) ) ),
+                        createContext( Array.prototype.slice.call( arguments, i ) ) ),
             next = function(){
 
                 // default to this context if no context is provided
-                var ctx = ( this === NO_CONTEXT ? context : this ),
+                //var ctx = ( this === NO_CONTEXT ? context : this ),
+                var ctx = ( is.validContext( this ) ? this : context ),
                 // transform arguments into a proper array
                     args = Array.prototype.slice.call( arguments );
 
@@ -24,7 +30,9 @@ define( ['util_extend', 'cascade_context'], function( extend, createContext ){
             };
 
         // start the callback chain
-        next.call( context, item );
+        next.apply( context,
+                    Array.prototype.slice.call( arguments, 0, i )
+                  );
 
     };
 
