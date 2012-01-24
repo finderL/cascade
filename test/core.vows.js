@@ -56,20 +56,20 @@ vows.describe( 'Cascade' ).addBatch({
                                                     )
     },
 
-    "Collect:" : {
+    "Join:" : {
         "(not from a destructured array, primitive)" : test.context( 1, 1,
-                                                          cascade.collect
+                                                          cascade.join
                                                         ),
         "(not from a destructured array, array)" : test.context( [ 1 ], [ 1 ],
-                                                                 cascade.collect
+                                                                 cascade.join
                                                                ),
         "(single item)" : test.context( [ 1 ], [ 1 ],
                                         cascade.fork,
-                                        cascade.collect
+                                        cascade.join
                                       ),
         "(many items)" : test.context( [1, 2], [1, 2],
                                        cascade.fork,
-                                       cascade.collect
+                                       cascade.join
                                      )
     },
 
@@ -80,12 +80,12 @@ vows.describe( 'Cascade' ).addBatch({
                                       ),
         "(many items, no post-process)" : test.context( [1, 2], [1, 2],
                                                         cascade.fork,
-                                                        cascade.collect
+                                                        cascade.join
                                                       ),
         "(many items, post-process)" : test.context( [1, 2], [2, 3],
                                                      cascade.fork,
                                                      test.increment(1),
-                                                     cascade.collect
+                                                     cascade.join
                                                    )
     },
 
