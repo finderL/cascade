@@ -19,11 +19,11 @@ fs.rename('/tmp/hello', '/tmp/world', function (err) {
 /** With Cascade.js **/
 cascade( '/tmp/hello', '/tmp/world',
          cascade.chain( fs.rename ),  // invoke fs.rename( '/tmp/hello', '/tmp/world', next )
-         cascade.raise,               // throw an error if fs.rename calls next with an Error
-         cascade.rearrange(2),        // rearrange the arguments to [ '/tmp/world' ] for fs.stat
+         cascade.raise( null, 2 ),    // throw an error if fs.rename calls next with an Error, otherwise
+                                      //          shift 2 arguments
          fs.stat,                     // invoke fs.stat( '/tmp/world' )
          cascade.raise,               // throw an error if fs.stat calls next with an Error
-         function (noerr, stats) {    // log the file stats
+         function (stats) {    // log the file stats
              console.log('stats: ' + JSON.stringify(stats));
          }
        );
@@ -48,7 +48,7 @@ BlogPost.findById(myId, function (err, post) {
 cascade( myId,
          BlogPost.findById,                // invoke BlogPost.findById( myId, next )
          cascade.raise,                    // throw an error if BlogPost.findById calls next with an Error
-         function (noerr, post, next) {    // custom handler for a post
+         function (post, next) {           // custom handler for a post
              post.comments[0].remove();
              post.save( next )             // Invert control - pass next to an asynchronous function as a
          },                                //        callback and resume right where the sequence left off
@@ -87,8 +87,17 @@ cascade( 2, 3, 4,
          function( val1, val2, val3, next ){
              next( 1 );
          },
-         callout );
-         // callout receives arguments : 1, 2, 3, 4
+         callout
+       );
+       // callout receives arguments : 1
+>
+cascade( 2, 3, 4,
+         cascade.chain( function( val1, val2, val3, next ){
+             next( 1 );
+         }),
+         callout
+       );
+       // callout receives arguments : 1, 2, 3, 4
 ```
 
 ===
@@ -141,17 +150,17 @@ Calls out: each element of `Array` individually
 
 > ```javascript
 cascade( [ 'file1', 'file2', 'file3' ],
-		 cascade.fork,
-		 fs.stat,
-		 function( err, stat ){
-		     console.log( stat );
-		 }
-	   );
-	   // console:
-	   //          [[ stats from first fs.stat to finish ]]
-	   //          [[ stats from second fs.stat to finish ]]
-	   //		   [[ stats from third fs.stat to finish ]]
-	   // (not necessarily in order file1, file2, file3)
+         cascade.fork,
+         fs.stat,
+         function( err, stat ){
+             console.log( stat );
+         }
+       );
+       // console:
+       //          [[ stats from first fs.stat to finish ]]
+       //          [[ stats from second fs.stat to finish ]]
+       //          [[ stats from third fs.stat to finish ]]
+       // (not necessarily in order file1, file2, file3)
 ```
 
 ===
@@ -168,13 +177,13 @@ Calls out: the reassembled array composed of callout values from the prior callb
 
 > ```javascript
 cascade( [ 'file1', 'file2', 'file3' ],
-		 cascade.fork,
-		 fs.stat,
-		 cascade.rearrange( 1 ),       // move the second callout argument `stat` to the first position
-		 cascade.join,
-		 callout
-	   );
-	   // callout receives arguments : [[ stats for file1 ]], [[ stats for file2 ]], [[ stats for file3 ]]
+         cascade.fork,
+         fs.stat,
+         cascade.rearrange( 1 ),       // move the second callout argument `stat` to the first position
+         cascade.join,
+         callout
+       );
+       // callout receives arguments : [[ stats for file1 ]], [[ stats for file2 ]], [[ stats for file3 ]]
 ```
 
 ===
@@ -211,13 +220,13 @@ cascade( [ 400, 300, 200, 100 ],
              }, ms );
 	 }
        );
-	   // console:
-	   //          400
-	   //          300
-	   //          200
-	   //          100
-	   // Compare to cascade.fork : the first returning call would be 100, not 400, and would
-	   // have resulted in a reversed console output.
+       // console:
+       //          400
+       //          300
+       //          200
+       //          100
+       // Compare to cascade.fork : the first returning call would be 100, not 400, and would
+       // have resulted in a reversed console output.
 ```
 
 ===
