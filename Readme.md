@@ -239,9 +239,9 @@ Calls out: all callin arguments except for the first `shiftArg` arguments
 
 > ```javascript
 cascade( 'error message',
-	 function( m, next ){
+         function( m, next ){
              next( Error(m) );
-	 },
+         },
          cascade.raise        // throws Error: "error message"
        );
 >    
