@@ -18,16 +18,16 @@ requirejs(
     function( cascade,
               fork, slice, queue, join, filter, map, each, raise, rearrange, chain ){
 
-        cascade.fork = fork;
-        cascade.slice = slice;
-        cascade.queue = queue;
-        cascade.join = join;
-        cascade.filter = filter;
-        cascade.map = map;
+        cascade.chain = chain;
         cascade.each = each;
+        cascade.filter = filter;
+        cascade.fork = fork;
+        cascade.join = join;
+        cascade.map = map;
+        cascade.queue = queue;
         cascade.raise = raise;
         cascade.rearrange = rearrange;
-        cascade.chain = chain;
+        cascade.slice = slice;
 
         module.exports = cascade;
     }
