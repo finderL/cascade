@@ -203,47 +203,53 @@ Serializes the `Array` cascade by invoking the full callback sequence on each el
 
 > ```javascript
 cascade( [ 400, 300, 200, 100 ],
-		 cascade.queue,
-		 function( ms, next ){
-		     setTimeout( function(){
-			     console.log( ms );
-				 next( ms );          // cascade.queue requires callouts to continue execution
-			 }, ms );
-	     }
+         cascade.queue,
+         function( ms, next ){
+             setTimeout( function(){
+                 console.log( ms );
+                 next( ms );          // cascade.queue requires callouts to continue execution
+             }, ms );
+	 }
        );
 	   // console:
 	   //          400
-	   // 		   300
-	   // 		   200
-	   // 		   100
+	   //          300
+	   //          200
+	   //          100
 	   // Compare to cascade.fork : the first returning call would be 100, not 400, and would
 	   // have resulted in a reversed console output.
 ```
 
 ===
 
-**raise**&nbsp;&nbsp;&nbsp;&nbsp;`cascade.raise`&nbsp;&nbsp;&nbsp;&nbsp;*Accepts: args..., next*
+**raise**&nbsp;&nbsp;&nbsp;&nbsp;`cascade.raise`, `cascade.raise( function(err), [shiftArgs = 1] )`&nbsp;&nbsp;&nbsp;&nbsp;*Accepts: args..., next*
 
-Raises an error if the first argument is an `Error` object; otherwise, calls out all arguments.
+When using the first signature, `cascade.raise` throws an error if the first argument is an `Error` object; otherwise, calls out all callin arguments except for the first argument. When using the second signature, a custom error handler can be supplied, along with a custom value for the number of arguments to shift off before calling out. If the error handler function is `null`, `cascade.raise` will default to throwing an called in `Error`, or shift `shiftArgs` from the callin arguments before calling out.
 
-Calls out: all callin arguments
+Calls out: all callin arguments except for the first `shiftArg` arguments
 
 > ```javascript
 cascade( 'error message',
-		 function( m, next ){
-		     next( Error(m) );
-	     },
-		 cascade.raise        // throws Error: "error message"
-	   );
+	 function( m, next ){
+             next( Error(m) );
+	 },
+         cascade.raise        // throws Error: "error message"
+       );
 >    
 cascade( 'error message',
-		 function( m, next ){
-		     setTimeout( function(){
-			     next( Error(m) );
-		     }, 100 );
-		 },
-		 cascade.raise( errorHandler ) // async error functions require a tailored handler,
-		 							   // since thrown errors are outside the current context
+         function( m, next ){
+             setTimeout( function(){
+                 next( Error(m) );
+             }, 100 );
+         },
+         cascade.raise( errorHandler ) // async error functions require a tailored handler,
+       );                              // since thrown errors are outside the current context
+>
+cascade( 1, 2, 3, 4,
+         cascade.raise( null, 2 ),     // defaults to throwing the callin error, or shifts 2 arguments off
+         callout
+       );
+       // callout receives arguments : 3, 4
 ```
 
 ===
@@ -256,10 +262,10 @@ Calls out: arguments as defined by the index parameters
 
 > ```javascript
 cascade( 1, 2, 3, 4, 5,
-		 cascade.rearrange( 3, 1, 2 ),  // pluck the [3], [1], and [2] indices from callin arguments
-		 callout
-	   );
-	   // callout receives arguments : 4, 2, 3
+         cascade.rearrange( 3, 1, 2 ),  // pluck the [3], [1], and [2] indices from callin arguments
+         callout
+       );
+       // callout receives arguments : 4, 2, 3
 ```
 
 ===
@@ -272,8 +278,8 @@ Calls out: the sliced callin arguments, or the sliced array argument if the only
 
 > ```javascript
 cascade( 1, 2, 3, 4, 5,
-		 cascade.slice( 2, 3 ),
-		 callout
-	   );
-	   // callout receives arguments : 3, 4
+         cascade.slice( 2, 3 ),
+         callout
+       );
+       // callout receives arguments : 3, 4
 ```
