@@ -13,9 +13,7 @@ fs.rename('/tmp/hello', '/tmp/world', function (err) {
     console.log('stats: ' + JSON.stringify(stats));
   });
 });
-```
 
-```javascript
 /** With Cascade.js **/
 cascade( '/tmp/hello', '/tmp/world',
          cascade.chain( fs.rename ),  // invoke fs.rename( '/tmp/hello', '/tmp/world', next )
@@ -41,9 +39,7 @@ BlogPost.findById(myId, function (err, post) {
     });
   }
 });
-```
 
-```javascript
 /** With Cascade.js **/
 cascade( myId,
          BlogPost.findById,                // invoke BlogPost.findById( myId, next )
@@ -59,6 +55,14 @@ cascade( myId,
 ```
 
 As asynchronous callbacks become more deeply nested, the advantage of Cascade.js becomes more apparent. Several builtin functions in Cascade also take advantage of the event-driven model of Node.js; `cascade.fork`, `cascade.queue`, and `cascade.join` provide a simple way to manage asynchronous callback sequences. Other functions allow simple manipulations to transform the callout data from one function into the correct arguments for the next. Below is a complete function reference for Cascade.js.
+
+## Installation / Download
+
+The latest version of Cascade.js will be available on this Github repository (https://github.com/scottrabin/cascade). Alternatively, Cascade can be installed via NPM:
+
+`npm install cascade`
+
+**Note: Cascade.js is BETA software, and has not yet been tested in any browser**
 
 ## Documentation
 
@@ -292,3 +296,9 @@ cascade( 1, 2, 3, 4, 5,
        );
        // callout receives arguments : 3, 4
 ```
+
+---
+
+## License
+
+Cascade.js is licensed under the MIT License (http://www.opensource.org/licenses/mit-license.php). Further details may be found in the MIT-LICENSE.txt file included in this repository.
