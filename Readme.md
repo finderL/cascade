@@ -65,13 +65,14 @@ As asynchronous callbacks become more deeply nested, the advantage of Cascade.js
 Cascade is invoked via `cascade( value, [value2, ...], callback, [callback2, ...] );`. The values specified in the initializer will be passed as arguments to the first `callback`; subsequent callbacks will be invoked with the arguments called out by the prior callback function.
 
 Terminology:
- - Callback : the function invoked by Cascade
- - Callin / Call in : the arguments passed to the callback function (shortened to `args...`)
- - Callout / Call out : the arguments passed to the callout function
+
+ * Callback : the function invoked by Cascade
+ * Callin / Call in : the arguments passed to the callback function (shortened to `args...`)
+ * Callout / Call out : the arguments passed to the callout function
 
 ## Methods
 
-==========
+---
 
 **chain**&nbsp;&nbsp;&nbsp;&nbsp;`cascade.chain( function( args..., callback ) )`&nbsp;&nbsp;&nbsp;&nbsp;*Accepts: args..., next*
    
@@ -90,7 +91,7 @@ cascade( 2, 3, 4,
          // callout receives arguments : 1, 2, 3, 4
 ```
 
----
+===
 
 **each**&nbsp;&nbsp;&nbsp;&nbsp;`cascade.each( function( item, index, array ) )`&nbsp;&nbsp;&nbsp;&nbsp;*Accepts: args..., next*
 
@@ -112,7 +113,7 @@ cascade( 'one', 'two', 'three',
        // callout receives arguments : 'one', 'two', 'three'
 ```
 
----
+===
 
 **filter**&nbsp;&nbsp;&nbsp;&nbsp;`cascade.filter( function( item, index, array ) )`&nbsp;&nbsp;&nbsp;&nbsp;*Accepts: args..., next*
 
@@ -130,7 +131,7 @@ cascade( 1, 2, 3, 4, 5, 6,
        // callout receives arguments : 2, 4, 6
 ```
 
----
+===
 
 **fork**&nbsp;&nbsp;&nbsp;&nbsp;`cascade.fork`&nbsp;&nbsp;&nbsp;&nbsp;*Accepts: Array, next*
 
@@ -153,7 +154,7 @@ cascade( [ 'file1', 'file2', 'file3' ],
 	   // (not necessarily in order file1, file2, file3)
 ```
 
----
+===
 
 **join**&nbsp;&nbsp;&nbsp;&nbsp;`cascade.join`&nbsp;&nbsp;&nbsp;&nbsp;*Accepts: value, next*
 
@@ -162,6 +163,7 @@ Reassembles a destructured array (via `cascade.fork` or `cascade.queue`) using v
 Calls out: the reassembled array composed of callout values from the prior callback function, only after all elements are received
 
 (Note: Only one value can be passed to cascade.join; multiple arguments will cause the cascade to fail)
+
 (Note: All elements are required to complete; failure to do so will halt the cascade at the `cascade.join` call)
 
 > ```javascript
@@ -175,7 +177,7 @@ cascade( [ 'file1', 'file2', 'file3' ],
 	   // callout receives arguments : [[ stats for file1 ]], [[ stats for file2 ]], [[ stats for file3 ]]
 ```
 
----
+===
 
 **map**&nbsp;&nbsp;&nbsp;&nbsp;`cascade.map( function( item, index, array ) )`&nbsp;&nbsp;&nbsp;&nbsp;*Accepts: args..., next*
 
@@ -193,7 +195,7 @@ cascade( 1, 2, 3, 4, 5, 6,
        // callout receives arguments : 'odd', 'even', 'odd', 'even', 'odd', 'even'
 ```
 
----
+===
 
 **queue**&nbsp;&nbsp;&nbsp;&nbsp;`cascade.queue`&nbsp;&nbsp;&nbsp;&nbsp;*Accepts: Array, next*
 
@@ -218,7 +220,7 @@ cascade( [ 400, 300, 200, 100 ],
 	   // have resulted in a reversed console output.
 ```
 
----
+===
 
 **raise**&nbsp;&nbsp;&nbsp;&nbsp;`cascade.raise`&nbsp;&nbsp;&nbsp;&nbsp;*Accepts: args..., next*
 
@@ -233,7 +235,7 @@ cascade( 'error message',
 	     },
 		 cascade.raise        // throws Error: "error message"
 	   );
-
+>    
 cascade( 'error message',
 		 function( m, next ){
 		     setTimeout( function(){
@@ -244,7 +246,7 @@ cascade( 'error message',
 		 							   // since thrown errors are outside the current context
 ```
 
----
+===
 
 **rearrange**&nbsp;&nbsp;&nbsp;&nbsp;`cascade.rearrange( i, j, k, ... )`&nbsp;&nbsp;&nbsp;&nbsp;*Accepts: args..., next*
 
@@ -260,7 +262,7 @@ cascade( 1, 2, 3, 4, 5,
 	   // callout receives arguments : 4, 2, 3
 ```
 
----
+===
 
 **slice**&nbsp;&nbsp;&nbsp;&nbsp;`cascade.slice( start, [end] )`&nbsp;&nbsp;&nbsp;&nbsp;*Accepts: args..., next*
 
