@@ -14,10 +14,10 @@ vows.describe( "Cascade special tests" ).addBatch({
                     cascade( oldFilename, newFilename,
                              cascade.chain( fs.rename ),
                              cascade.raise,
-                             cascade.rearrange(2),
+                             cascade.rearrange(1),
                              fs.stat,
                              cascade.raise,
-                             function( noerr, stats, next ){
+                             function( stats, next ){
                                  assert.isObject( stats );
                                  next( newFilename );
                              },

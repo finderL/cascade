@@ -146,7 +146,6 @@ var test = module.exports = {
 
     "compareResult" : function( compareTo ){
         return function(){
-            //console.log( "Comparing results", arguments, compareTo );
             assert.deepEqual(
                 Array.prototype.slice.call( arguments, 0, arguments.length - 1 ),
                 compareTo
