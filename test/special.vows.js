@@ -13,8 +13,7 @@ vows.describe( "Cascade special tests" ).addBatch({
                 testFn = function(){
                     cascade( oldFilename, newFilename,
                              cascade.chain( fs.rename ),
-                             cascade.raise,
-                             cascade.rearrange(1),
+                             cascade.raise( null, 2 ),
                              fs.stat,
                              cascade.raise,
                              function( stats, next ){

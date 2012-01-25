@@ -111,5 +111,39 @@ vows.describe( "Cascade.raise" ).addBatch({
                        );
             }, EvalError );
         },
+        "Two arguments, null error handler, shiftArgs = 0 (error)" : function(){
+            assert.throws( function(){
+                cascade( 1, 2, 3, 4,
+                         calloutError,
+                         cascade.raise( null, 0 )
+                       );
+            }, EvalError );
+        },
+        "Two arguments, null error handler, shiftArgs = 0 (no error)" : function(){
+            assert.doesNotThrow( function(){
+                cascade( 1, 2, 3, 4,
+                         test.passthrough,
+                         cascade.raise( null, 0 ),
+                         test.compareResult( [1, 2, 3, 4] )
+                       );
+            }, EvalError );
+        },
+        "Two arguments, null error handler, shiftArgs = 2 (error)" : function(){
+            assert.throws( function(){
+                cascade( 1, 2, 3, 4,
+                         calloutError,
+                         cascade.raise( null, 2 )
+                       );
+            }, EvalError );
+        },
+        "Two arguments, null error handler, shiftArgs = 2 (no error)" : function(){
+            assert.doesNotThrow( function(){
+                cascade( 1, 2, 3, 4,
+                         test.passthrough,
+                         cascade.raise( null, 2 ),
+                         test.compareResult( [3, 4] )
+                       );
+            }, EvalError );
+        }
     }
 }).export( module );
