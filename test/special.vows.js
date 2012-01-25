@@ -14,7 +14,7 @@ vows.describe( "Cascade special tests" ).addBatch({
                     cascade( oldFilename, newFilename,
                              cascade.chain( fs.rename ),
                              cascade.raise,
-                             cascade.argument(2),
+                             cascade.rearrange(2),
                              fs.stat,
                              cascade.raise,
                              function( noerr, stats, next ){
