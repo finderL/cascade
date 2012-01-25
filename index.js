@@ -29,6 +29,6 @@ requirejs(
         cascade.rearrange = rearrange;
         cascade.slice = slice;
 
-        module.exports = cascade;
+        return (module.exports = cascade);
     }
 );
