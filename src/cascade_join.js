@@ -14,16 +14,17 @@ define( ['cascade_core', 'cascade_context'], function( cascade, createContext ){
         // find the collection this item is associated with
         var collection;
         for( var i = 0 ; i < collections.length ; i++ ){
-            if( collections[i].stack === this.stack ){
+            if( collections[i].list_context === this.data.list_context ){
                 collection = collections[i];
+                break;
             }
         }
 
         // if no collection can be found, this item is the first; process appropriately
         if( !collection ){
             collection = {
-                // identify the stack
-                stack : this.stack
+                // identify the list context
+                list_context : this.data.list_context
                 // instantiate a sparsely-populated array for collecting items
               , items : new Array( this.data.list_length )
                 // remaining items
@@ -55,7 +56,7 @@ define( ['cascade_core', 'cascade_context'], function( cascade, createContext ){
 
             // start a new cascade
             cascade.call(
-                createContext( collection.resumeStack ),
+                createContext( collection.resumeStack, collection.list_context.data ),
                 collection.items
             );
         }

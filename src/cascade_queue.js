@@ -30,9 +30,14 @@ define( ['util_extend', 'util_is', 'cascade_context'], function( extend, is, cre
                 // if the queue is complete, just return
                 if( queuePosition >= item.length ){ return; }
                 // modify the context to prevent list_* overlapping
+                // preserve referential integrity to the context
+                var data = extend( {}, context.data, { list_index : queuePosition,
+                                                       list_length : item.length } );
+                data.list_context = context;
+                
                 currentContext = ctx = createContext(
                     context.stack,
-                    extend( {}, context.data, { list_index : queuePosition, list_length : item.length } ),
+                    data,
                     originalStackPosition );
 
                 // set the arguments to the correct value

@@ -1,6 +1,10 @@
 var assert = require('assert'),
     cascade = require('../index');
 
+var TestComplete = function(){}
+TestComplete.prototype = new Error();
+TestComplete.prototype.constructor = TestComplete;
+
 var test = module.exports = {
     // generates a macro context
     "context" : function( initialVal, result ){
@@ -23,6 +27,34 @@ var test = module.exports = {
         };
     },
 
+    "create" : function( initialArgs, resultArgs ){
+        var stack = Array.prototype.slice.call( arguments, 2 );
+
+        // if resultArgs is an array, add a final comparison function
+        if( resultArgs instanceof Array ){
+            stack.push( test.compareResult( resultArgs ) );
+        }
+
+        stack.push( test.complete );
+
+        return function(){
+            assert.throws( function(){
+                cascade.apply(
+                    {
+                        stack : stack,
+                        stackPosition : 0,
+                        data : {}
+                    },
+                    initialArgs
+                );
+            }, TestComplete );
+        }
+    },
+
+    "complete" : function(){
+        throw new TestComplete();
+    },
+
     "passthrough" : function(){
         arguments[ arguments.length - 1 ].apply(
             this,
@@ -42,12 +74,15 @@ var test = module.exports = {
             for( var prop in data ){
                 this.data[prop] = data[prop];
             }
-            next( item );
+            arguments[ arguments.length - 1 ].apply(
+                this,
+                Array.prototype.slice.call( arguments, 0, arguments.length - 1 )
+            );
         }
     },
 
     "returnData" : function( item, next ){
-        next( this.data );
+        arguments[ arguments.length - 1 ]( this.data );
     },
 
     "delay" : function( ms ){
@@ -73,6 +108,17 @@ var test = module.exports = {
         arguments[ arguments.length - 1 ].apply( this, args );
     },
 
+    "tap" : function( func ){
+        return function(){
+            var args = Array.prototype.slice.call( arguments, 0, arguments.length - 1 ),
+                next = arguments[ arguments.length - 1 ];
+
+            func.apply( this, args );
+
+            next.apply( this, args );
+        }
+    },
+
     "done" : function( cb ){
         return function( item, callback ){
             cb( null, item );
@@ -96,5 +142,20 @@ var test = module.exports = {
 
             callback( item );
         }
+    },
+
+    "compareResult" : function( compareTo ){
+        return function(){
+            //console.log( "Comparing results", arguments, compareTo );
+            assert.deepEqual(
+                Array.prototype.slice.call( arguments, 0, arguments.length - 1 ),
+                compareTo
+            );
+
+            arguments[ arguments.length - 1 ].call(
+                this,
+                Array.prototype.slice.call( arguments, 0, arguments.length - 1 )
+            );
+        };
     }
 };

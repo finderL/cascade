@@ -17,7 +17,7 @@ define( ['util_extend', 'util_is', 'cascade_context'], function( extend, is, cre
                 // default to this context if no context is provided
                 var ctx = ( is.validContext( this ) && this !== NO_CONTEXT ? this : context ),
                 // transform arguments into a proper array
-                    args = Array.prototype.slice.call( arguments );
+                    args = Array.prototype.slice.call( arguments, 0 );
 
                 // if there are still functions in the stack, run them
                 if( ctx.stackPosition < ctx.stack.length ){

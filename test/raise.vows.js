@@ -33,7 +33,7 @@ vows.describe( "Cascade.raise" ).addBatch({
                      },
                      cascade.raise
                    );
-        });
+        }, Error);
     },
     "Error (halts propagation)" : function(){
         assert.throws( function(){
@@ -46,6 +46,6 @@ vows.describe( "Cascade.raise" ).addBatch({
                          assert.fail("Should not have reached this point");
                      }
                    );
-        });
+        }, Error);
     }
 }).export( module );

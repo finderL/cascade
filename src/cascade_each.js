@@ -5,22 +5,25 @@ define( ['util_is'], function( is ){
      *
      * Callback function conforms to ECMA-262 15.4.4.18
      *  -- function( itemValue, arrayIndex, originalArray )
-     * Note: No value for `thisArg` can be defined
+     * Note: No value for `thisArg` can be defined; it always uses the cascade context
      */
     return function( fn ){
 
-        return function( item, next ){
-            if( is.array( item ) ){
-                // look through, apply function, then call back
-                for( var i = 0 ; i < item.length ; i++ ){
-                    fn( item[ i ], i, item );
-                }
-            } else {
-                // not an array, then apply the function to the item directly
-                fn( item, null, null );
+        return function(){
+            // determine the list
+            var list = ( arguments.length === 2 && is.array( arguments[0] ) ? arguments[0] :
+                         Array.prototype.slice.call( arguments, 0, arguments.length - 1 ) );
+
+            // iterate & call
+            for( var i = 0 ; i < list.length ; i++ ){
+                fn.call( this, list[ i ], i, list );
             }
-            // finally, call out the original, unmodified item
-            next( item );
+
+            // next
+            arguments[ arguments.length - 1 ].apply(
+                this,
+                Array.prototype.slice.call( arguments, 0, arguments.length - 1 )
+            );
         };
     };
 });
