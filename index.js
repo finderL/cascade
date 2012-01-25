@@ -7,11 +7,17 @@
 var requirejs = require('requirejs');
 
 requirejs.config({
+    // need a unique context for this
+    context : 'cascade',
+    // the baseUrl for all modules here
     baseUrl : __dirname + '/src',
+    // node require function
     nodeRequire : require
 });
 
 requirejs(
+    // specify the context
+    { context : 'cascade' },
     ['cascade_core',
      'cascade_fork', 'cascade_slice', 'cascade_queue', 'cascade_join', 'cascade_filter',
      'cascade_map', 'cascade_each', 'cascade_raise', 'cascade_rearrange', 'cascade_chain' ],
